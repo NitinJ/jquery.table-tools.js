@@ -1,0 +1,28 @@
+.tabletoolstoolbar{
+  margin:2px;
+  padding-top:2px;
+  padding-bottom:2px;
+}
+.tabletoolsselectedrowicon{
+  margin:2px;
+  margin-right:6px;
+  color:green;
+}
+.tabletoolsselectedtr{
+  background-color:#f5f5f5;
+}
+.tabletoolstoolbar_button:first-child{
+  margin-right:2px;
+  border-radius:0px;
+}
+.tabletoolstoolbar_button{
+  margin-left:2px;
+  margin-right:2px;
+  border-radius:0px;
+}
+.tabletoolspagination ul>li>a  {
+  color:black;
+}
+.tabletoolsmodal{
+  border-radius:0px;
+}
