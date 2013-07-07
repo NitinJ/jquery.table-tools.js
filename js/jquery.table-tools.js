@@ -8,7 +8,8 @@
         itemsPerPage:10,
         deleteConfirmationHeading: "Delete?",
         deleteConfirmationBodyHtml:"Do you want to delete the selected rows?",
-        deleteFunction: function(x){}
+        deleteFunction: function(x){},
+        responsive:1
       },options);
 
       //Check if its a table and return if its not
@@ -16,6 +17,7 @@
 
       //Variables
       var elements = new Array();
+      var headings = new Array();
       var parentElementOfTable = $(this).parent();
       var tableToolsToolbar = $("<div class='tabletoolstoolbar'></div>");
       var tableToolsContainer = $("<div id='tabletoolscontainer'>"+
@@ -31,14 +33,14 @@
             "<a href='#' data-dismiss='modal' class='btn'>No</a>"+
             "<a href='#' id='confirmdelete' data-dismiss='modal' class='btn btn-primary'>Yes</a>"+
           "</div>"+
-        "</div>"+
-      "</div>");
+        "</div>"+"</div>");
       var tableToolsBottombar = $("");
       var currentPage = 1;
       var totalPages = 1;
       var totalActiveRows = options.itemsPerPage;
       var totalSelectedRows = 0;
-      
+      var sortStateIcons = {"1":"icon-sort-down", "0":"icon-sort", "-1":"icon-sort-up"}
+       
       //Detatch table from DOM
       var thisTable = $(this).detach();
 
@@ -59,6 +61,31 @@
          $("#deleteselectedbutton").hide(); 
       }
 
+      //sort
+      var sortTable = function(c, x){
+        elements.sort(function(a, b){
+          var val1 = a.obj.children("td:nth-child("+(c+1)+")").text();
+          var val2 = b.obj.children("td:nth-child("+(c+1)+")").text();
+          val1 = val1<=val2;
+          if(x==1){
+            if(val1)
+              return -1;
+            else
+              return 1;
+          }
+          else{
+            if(val1)
+              return 1;
+            else
+              return -1;
+          }
+        });
+        for(i in elements){
+          elements[i].obj.data('id', i);
+        }
+        showPage(currentPage);
+      }
+        
       // Handling confirmation on delete modal
       tableToolsContainer.find("#confirmdelete").click(function(){
         var returnvalues = new Array();
@@ -83,7 +110,6 @@
       // Click to select and deselect
       for(i in elements){
         elements[i].obj.click(function(e){
-          console.log("Clicked on row!");
           var id = $(this).data('id');
           if(elements[id].selected){
             elements[id].selected=0;
@@ -101,11 +127,10 @@
       }
 
       // Select all
-      var selectAllButton = $("<button class='btn btn tabletoolstoolbar_button'><i class='icon-check'></i> Select all</button>").click(function(){
-        var selected=0;
+      var selectAllButton = $("<button id='tabletools_selectallbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-check'></i> <span class='visible-desktop visible-tablet'>Select all</span></button>").click(function(){
+        var selected=elements.length;
         for(i in elements){
           if(!elements[i].selected && elements[i].active){
-            selected++;
             elements[i].selected=1;
             elements[i].obj.addClass("tabletoolsselectedtr");
             elements[i].obj.find("td:first-child()").prepend($("<i class='tabletoolsselectedrowicon icon-ok'></i>"));
@@ -116,7 +141,7 @@
       });
 
       // Deselect all
-      var deSelectAllButton = $("<button class='btn btn tabletoolstoolbar_button'><i class='icon-check-empty'></i> Deselect all</button>").click(function(){
+      var deSelectAllButton = $("<button class='btn btn tabletoolstoolbar_button'><i class='icon-check-empty'></i> <span class='visible-desktop visible-tablet'>Deselect all</span></button>").click(function(){
         var deselected=0;
         for(i in elements){
           if(elements[i].selected && elements[i].active){
@@ -131,7 +156,7 @@
       });
 
       // DeleteSelectedRows button
-      var deleteSelectedButton = $("<button id='deleteselectedbutton' class='hide btn btn tabletoolstoolbar_button'><i class='icon-trash'></i> Delete selected</button>").click(function(){
+      var deleteSelectedButton = $("<button id='deleteselectedbutton' class='hide btn btn tabletoolstoolbar_button'><i class='icon-trash'></i> <span class='visible-desktop visible-tablet'>Delete selected</span></button>").click(function(){
         $("#deleteconfirmationmodal").modal('show');
       });
 
@@ -151,8 +176,45 @@
 
       //Get total number of pages needed. Empty the table first
       totalPages = parseInt(e/options.itemsPerPage)+1;
-      var blankTable = thisTable.clone();  
+      var blankTable = thisTable.clone();
       blankTable.find("tbody").children().remove();
+
+      //Sort icons
+      blankTable.find("thead>tr>th").each(function(){
+        $(this).data('sort','0');
+        $(this).addClass("tabletoolsheadings");
+        var sortButton = $("<i class='tabletoolssorticon pull-right icon-sort'></i>");
+        $(this).append(sortButton);
+        var col = $(this).parent().children().index($(this));
+        
+        $(this).click(function(e){
+          sortState = parseInt($(this).data('sort'));
+          $(this).find(".tabletoolssorticon").removeClass(sortStateIcons[sortState]);
+          if(!sortState)
+            sortState = 1;
+          else
+            sortState = sortState*-1;
+          $(this).find(".tabletoolssorticon").addClass(sortStateIcons[sortState]);
+          $(this).data('sort',sortState);
+          sortTable(col, sortState);
+        });
+      });
+
+      // Responsive class
+      if(options.responsive){
+        blankTable.addClass("tabletoolsresponsive_table");
+        searchBox.addClass("tabletoolsresponsive_searchbox");
+        var headings = new Array();
+        blankTable.find("thead>tr>th").each(function(){
+          headings.push($(this).text().trim());
+        });
+        for(i in elements){
+          var tds = elements[i].obj.find("td");
+            for(var j=0;j<tds.length;j++){
+              $(tds[j]).prepend("<p class='tabletoolsresponsive_tdheading pull-left'>"+headings[j]+"</p>");
+            }
+        }
+      }
 
       //Functions to generate pagination links
       var generatePagination = function(){
@@ -193,11 +255,13 @@
             count++;
         }
         //Show number of active rows
-        $("#numberofactiverows").text("Showing " + count2 + " rows of " + elements.length);      }
+        $("#numberofactiverows").text("Showing " + count2 + " rows of " + elements.length);      
+      }
 
       tableToolsToolbar.append(selectAllButton).append(deSelectAllButton).append(deleteSelectedButton).append(searchBox);
       tableToolsContainer.append(tableToolsToolbar).append(blankTable).append(generatePagination);
       parentElementOfTable.append(tableToolsContainer);
+
       showPage(1);
     });
   }
