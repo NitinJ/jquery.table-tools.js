@@ -4,12 +4,14 @@
     return this.each(function(){
 
       //Give default values to options
-      options = $.extend({
+      options = $.extend({}, {
         itemsPerPage:10,
+        responsive:1,
         deleteConfirmationHeading: "Delete?",
         deleteConfirmationBodyHtml:"Do you want to delete the selected rows?",
         deleteFunction: function(x){},
-        responsive:1
+        addRowValidationFunction: function(x){return true;},
+        addRowCallback: function(x){return true},
       },options);
 
       //Check if its a table and return if its not
@@ -19,21 +21,11 @@
       var elements = new Array();
       var headings = new Array();
       var parentElementOfTable = $(this).parent();
+      var previousElementOfTable = $(this).prev();
       var tableToolsToolbar = $("<div class='tabletoolstoolbar'></div>");
-      var tableToolsContainer = $("<div id='tabletoolscontainer'>"+
-        "<div id='deleteconfirmationmodal' class='tabletoolsmodal modal hide fade'>"+
-          "<div class='modal-header'>"+
-            "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>"+
-            "<h3>"+options.deleteConfirmationHeading+"</h3>"+
-          "</div>"+
-          "<div class='modal-body'>"+
-            "<p>"+options.deleteConfirmationBodyHtml+"</p>"+
-          "</div>"+
-          "<div class='modal-footer'>"+
-            "<a href='#' data-dismiss='modal' class='btn'>No</a>"+
-            "<a href='#' id='confirmdelete' data-dismiss='modal' class='btn btn-primary'>Yes</a>"+
-          "</div>"+
-        "</div>"+"</div>");
+      var tableToolsContainer = $("<div class='tabletoolscontainer'><div class='deleteconfirmationmodal tabletoolsmodal modal hide fade'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button><h3>"+options.deleteConfirmationHeading+"</h3></div><div class='modal-body'><p>"+options.deleteConfirmationBodyHtml+"</p></div><div class='modal-footer'><a href='#' data-dismiss='modal' class='btn'>No</a><a href='#' data-dismiss='modal' class='tabletools_confirmdelete btn btn-primary'>Yes</a></div></div></div>");
+      var addRowModal = $("<div class='tabletools_addrowmodal tabletoolsmodal modal hide fade'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button><h3>Add new row</h3></div><div class='tabletools_addrowmodalbody modal-body'></div><div class='modal-footer'><a href='#' data-dismiss='modal' class='btn'>Close</a><a href='#' class='btn btn-primary tabletools_addrowbuttonconfirm' data-dismiss='modal'>Add row</a></div></div>");
+      tableToolsContainer.append(addRowModal);
       var tableToolsBottombar = $("");
       var currentPage = 1;
       var totalPages = 1;
@@ -43,6 +35,12 @@
        
       //Detatch table from DOM
       var thisTable = $(this).detach();
+
+      // Get all headings
+      var headings = new Array();
+      thisTable.find("thead>tr>th").each(function(){
+        headings.push($(this).text().trim());
+      });
 
       //Store all the elements
       var e = 0;
@@ -56,9 +54,9 @@
         if(!s) totalSelectedRows = totalSelectedRows + n;
         else totalSelectedRows = n;
         if(totalSelectedRows)
-          $("#deleteselectedbutton").show();
+          tableToolsToolbar.find(".deleteselectedbutton").show();
         else
-         $("#deleteselectedbutton").hide(); 
+         tableToolsToolbar.find(".deleteselectedbutton").hide(); 
       }
 
       //sort
@@ -85,27 +83,50 @@
         }
         showPage(currentPage);
       }
-        
-      // Handling confirmation on delete modal
-      tableToolsContainer.find("#confirmdelete").click(function(){
-        var returnvalues = new Array();
-        var deleted = 0;
-        for(var i=0;i<elements.length;i++){
-          if(elements[i].selected){
-            elements.splice(i,1);
-            deleted++;
-            i--;
+      
+      //Functions to generate pagination links
+      var generatePagination = function(){
+        var e = elements.length;
+        var totalPages = Math.ceil(e/options.itemsPerPage);
+        var itemsperpage=options.itemsPerPage;
+        var paginationhtml = '<div class="tabletoolspagination pagination"><p class="pull-right tabletools_numberofactiverows_p"></p><p style="margin-left:2px;margin-right:2px" class="pull-right numberofselectedrows"></p> <ul><li><a href="#">Prev</a></li>';
+        for(var i=1;i<=totalPages;i++)
+          paginationhtml = paginationhtml + '<li><a href="#">'+i+'</a></li>';
+        var paginationObj = $(paginationhtml + '<li><a href="#">Next</a></li></ul></div>');
+        // CLick handler on page
+        paginationObj.find("a").click(function(){
+          var n = $(this).text();
+          if(n=="Prev") n = (currentPage-1)<1?1:currentPage-1;
+          if(n == "Next") n = (currentPage+1)>totalPages?totalPages:currentPage+1;
+          else n = parseInt(n);
+          currentPage = n;
+          showPage(currentPage);
+        });
+        return paginationObj;
+      }
+
+      // Main() Function to show a page(called when pagination link is clicked)
+      var showPage = function(p) {
+        blankTable.find("tbody").children().detach();
+        var content = $('');
+        p = p>e?e:p;
+        var count=0,count2=0;
+
+        for(i in elements){
+          if(count>=options.itemsPerPage*(p-1) && count2<options.itemsPerPage){
+            if(elements[i].active){
+              count2++;
+              blankTable.find("tbody").append(elements[i].obj);
+            }
           }
-          else{
-            elements[i].obj.data('id', i);  
-          }
+          else if(elements[i].active) 
+            count++;
         }
-        changeTotalSelectedRows(0, deleted*-1);
-        options.deleteFunction(returnvalues);
-        $("#tabletoolscontainer").find(".tabletoolspagination").remove();
-        $("#tabletoolscontainer").append(generatePagination());
-        showPage(currentPage);
-      });
+        //Show number of active rows
+        tableToolsContainer.find(".tabletools_numberofactiverows_p").text("Showing " + count2 + " rows of " + elements.length);
+        tableToolsContainer.find(".tabletoolspagination>ul>li>a").removeClass("tabletoolspagination_acurrentpage");
+        tableToolsContainer.find(".tabletoolspagination>ul>li:nth-child("+(currentPage+1)+")>a").addClass("tabletoolspagination_acurrentpage");
+      }
 
       // Click to select and deselect
       for(i in elements){
@@ -125,6 +146,85 @@
           }
         });
       }
+
+      // Adding add row modal
+      for(i in headings){
+        var html = $('<form class="form-horizontal"><div class="control-group"><label for="tabletools_input'+i+'" class="control-label">'+headings[i]+'</label><div class="controls"><input id="tabletools_input'+i+'" type="text"></div></div></form>');
+        tableToolsContainer.find(".tabletools_addrowmodalbody").append(html);
+      }
+
+      // Handling confirmation on delete modal
+      tableToolsContainer.find(".tabletools_confirmdelete").click(function(){
+        var returnvalues = new Array();
+        var deleted = 0;
+        for(var i=0;i<elements.length;i++){
+          if(elements[i].selected){
+            elements.splice(i,1);
+            deleted++;
+            i--;
+          }
+          else{
+            elements[i].obj.data('id', i);  
+          }
+        }
+        changeTotalSelectedRows(0, deleted*-1);
+        options.deleteFunction(returnvalues);
+        tableToolsContainer.find(".tabletoolspagination").remove();
+        tableToolsContainer.append(generatePagination());
+        showPage(currentPage);
+      });
+
+      // Handling confirmation on add row
+      tableToolsContainer.find(".tabletools_addrowbuttonconfirm").click(function(){
+        var inputs = tableToolsContainer.find(".tabletools_addrowmodalbody input");
+        var inputarr = new Array();
+        for(var i=0;i<inputs.length;i++){
+          inputarr.push($(inputs[i]).val());
+        }
+        if(options.addRowValidationFunction(inputarr)){
+          var rowcopy = $("<tr></tr>");
+          for(i in headings){
+            if(options.responsive){
+              rowcopy.append("<td><p class='tabletoolsresponsive_tdheading pull-left'>"+headings[i]+"</p>"+inputarr[i]+"</td>");
+            }
+            else{
+              rowcopy.append("<td>"+inputarr[i]+"</td>");
+            }
+          }
+          rowcopy.data('id', elements.length);
+          rowcopy.click(function(e){
+            var id = $(this).data('id');
+            if(elements[id].selected){
+              elements[id].selected=0;
+              elements[id].obj.removeClass("tabletoolsselectedtr");
+              elements[id].obj.find("td:first-child()>.tabletoolsselectedrowicon").remove();
+              changeTotalSelectedRows(0,-1);
+            }
+            else{
+              elements[id].selected=1;
+              elements[id].obj.addClass("tabletoolsselectedtr");
+              elements[id].obj.find("td:first-child()").prepend($("<i class='tabletoolsselectedrowicon icon-ok'></i>"));
+              changeTotalSelectedRows(0,1);
+            }
+          });
+          elements.push({obj:rowcopy, active:1, selected:0});
+          tableToolsContainer.find(".tabletoolspagination").remove();
+          tableToolsContainer.append(generatePagination());
+          var forms = tableToolsContainer.find("form");
+          console.log(forms);
+          for(i in forms){
+            try{forms[i].reset();}
+            catch(err){}
+          }
+          addRowCallback(inputarr);
+          showPage(currentPage);
+        }
+      });
+
+      // Add row
+      var addRowButton = $("<button id='tabletools_addrowbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-plus'></i> <span class='visible-desktop visible-tablet'>Add row</span></button>").click(function(){
+        tableToolsContainer.find(".tabletools_addrowmodal").modal('show');
+      });
 
       // Select all
       var selectAllButton = $("<button id='tabletools_selectallbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-check'></i> <span class='visible-desktop visible-tablet'>Select all</span></button>").click(function(){
@@ -156,12 +256,12 @@
       });
 
       // DeleteSelectedRows button
-      var deleteSelectedButton = $("<button id='deleteselectedbutton' class='hide btn btn tabletoolstoolbar_button'><i class='icon-trash'></i> <span class='visible-desktop visible-tablet'>Delete selected</span></button>").click(function(){
-        $("#deleteconfirmationmodal").modal('show');
+      var deleteSelectedButton = $("<button class='deleteselectedbutton hide btn btn tabletoolstoolbar_button'><i class='icon-trash'></i> <span class='visible-desktop visible-tablet'>Delete selected</span></button>").click(function(){
+        tableToolsContainer.find(".deleteconfirmationmodal").modal('show');
       });
 
       // Search box
-      var searchBox = $("<div class='input-prepend pull-right'><span class='add-on'><i class='icon-search'></i></span><input class='pull-right' type='text' placeholder='Search...'></div>").keyup(function(){
+      var searchBox = $("<div class='input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='pull-right' type='text' placeholder='Search...'></div>").keyup(function(){
         var str = $(this).find("input").val();
         for(i in elements){
             if(elements[i].obj.text().indexOf(str) < 0){
@@ -204,10 +304,6 @@
       if(options.responsive){
         blankTable.addClass("tabletoolsresponsive_table");
         searchBox.addClass("tabletoolsresponsive_searchbox");
-        var headings = new Array();
-        blankTable.find("thead>tr>th").each(function(){
-          headings.push($(this).text().trim());
-        });
         for(i in elements){
           var tds = elements[i].obj.find("td");
             for(var j=0;j<tds.length;j++){
@@ -216,51 +312,12 @@
         }
       }
 
-      //Functions to generate pagination links
-      var generatePagination = function(){
-        var e = elements.length;
-        var totalPages = parseInt(e/options.itemsPerPage)+1;
-        var itemsperpage=options.itemsPerPage;
-        var paginationhtml = '<div class="tabletoolspagination pagination"><p class="pull-right" id="numberofactiverows"></p><p style="margin-left:2px;margin-right:2px" class="pull-right" id="numberofselectedrows"></p> <ul><li><a href="#">Prev</a></li>';
-        for(var i=1;i<=parseInt(e/itemsperpage)+1;i++)
-          paginationhtml = paginationhtml + '<li><a href="#">'+i+'</a></li>';
-        var paginationObj = $(paginationhtml + '<li><a href="#">Next</a></li></ul></div>');
-        // CLick handler on page
-        paginationObj.find("a").click(function(){
-          var n = $(this).text();
-          if(n=="Prev") n = (currentPage-1)<1?1:currentPage-1;
-          if(n == "Next") n = (currentPage+1)>totalPages?totalPages:currentPage+1;
-          else n = parseInt(n);
-          currentPage = n;
-          showPage(currentPage);
-        });
-        return paginationObj;
-      }
-
-      // Main() Function to show a page(called when pagination link is clicked)
-      var showPage = function(p) {
-        blankTable.find("tbody").children().detach();
-        var content = $('');
-        p = p>e?e:p;
-        var count=0,count2=0;
-
-        for(i in elements){
-          if(count>=options.itemsPerPage*(p-1) && count2<options.itemsPerPage){
-            if(elements[i].active){
-              count2++;
-              blankTable.find("tbody").append(elements[i].obj);
-            }
-          }
-          else if(elements[i].active) 
-            count++;
-        }
-        //Show number of active rows
-        $("#numberofactiverows").text("Showing " + count2 + " rows of " + elements.length);      
-      }
-
-      tableToolsToolbar.append(selectAllButton).append(deSelectAllButton).append(deleteSelectedButton).append(searchBox);
+      tableToolsToolbar.append(addRowButton).append(selectAllButton).append(deSelectAllButton).append(deleteSelectedButton).append(searchBox);
       tableToolsContainer.append(tableToolsToolbar).append(blankTable).append(generatePagination);
-      parentElementOfTable.append(tableToolsContainer);
+      if(previousElementOfTable.length)
+        previousElementOfTable.after(tableToolsContainer);
+      else
+        parentElementOfTable.append(tableToolsContainer);
 
       showPage(1);
     });

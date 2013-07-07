@@ -31,11 +31,18 @@
 .tabletoolsresponsive_tdheading{
   display:none;
 }
+.tabletoolsresponsive_searchbox{
+  white-space: normal !important;
+}
+.tabletoolspagination_acurrentpage{
+  background:#F5F5F5 !important
+}
+
 
 @media 
 only screen and (max-width: 760px),
 (min-device-width: 768px) and (max-device-width: 1024px)  {
-    .tabletoolsresponsive_table table, thead, tbody, th, td, tr{
+    .tabletoolsresponsive_table table, .tabletoolsresponsive_table thead, .tabletoolsresponsive_table tbody, .tabletoolsresponsive_table th, .tabletoolsresponsive_table td, .tabletoolsresponsive_table tr{
       display: block; 
     }
     .tabletoolsresponsive_table thead tr { 
@@ -64,6 +71,7 @@ only screen and (max-width: 760px),
      .tabletoolsresponsive_searchbox{
       display:block !important;
       margin-top:2px;
+      white-space: normal !important;
     }
 
     .tabletoolsresponsive_table .tabletoolsselectedrowicon{

@@ -12,9 +12,10 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $("#mytable").tableTools({itemsPerPage:10});
+        $("#mytable1").tableTools({itemsPerPage:8});
+
+        $("#mytable2").tableTools({itemsPerPage:10,responsive:0});
       });
-      
     </script>
     <meta charset="utf-8">
     <title>Table tools</title>
@@ -39,52 +40,93 @@
       <div class="container">
         <div class="row">
 
-          <h3 id="heading1">Sample table</h3>
+            <h3 id="heading1">Sample table 1</h3>
+            <table id="mytable1" class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th data-class="expand">
+                    First Name
+                  </th>
+                  <th>
+                    Last Name
+                  </th>
+                  <th data-hide="phone,tablet">
+                    Job Title
+                  </th>
+                  <th data-hide="phone,tablet">
+                    DOB
+                  </th>
+                  <th data-hide="phone">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="expand">Dalene</td><td>Kyger</td><td>Pipe Organ Technician</td><td data-value="301628552763">24 Jul 1979</td><td data-value="3">Suspended</td></tr>
+                <tr><td class="expand">Gwyn</td><td>Letts</td><td>Emergency Room Orderly</td><td data-value="39223730865">31 Mar 1971</td><td data-value="2">Disabled</td></tr>
+                <tr><td class="expand">Jacqulyn</td><td>Lewis</td><td>Language Translator</td><td data-value="267868302457">28 Jun 1978</td><td data-value="3">Suspended</td></tr>
+                <tr><td class="expand">Bar</td><td>Lan</td><td>Business Services Sales Representative</td><td data-value="151133415026">16 Oct 1974</td><td data-value="2">Disabled</td></tr>
+                <tr><td class="expand">Cyndy</td><td>Leak</td><td>Periodontist</td><td data-value="409113990796">19 Dec 1982</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Jack</td><td>Dragoo</td><td>Ordnance Engineer</td><td data-value="270562207782">29 Jul 1978</td><td data-value="3">Suspended</td></tr>
+                <tr><td class="expand">Lorriane</td><td>Ortego</td><td>Body Shop Supervisor</td><td data-value="620144344284">26 Aug 1989</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Jua</td><td>Leak</td><td>Photocopying Equipment Repairer</td><td data-value="400526034309">10 Sep 1982</td><td data-value="3">Suspended</td></tr>
+                <tr><td class="expand">Venice</td><td>Boudreaux</td><td>Accounts Collector</td><td data-value="-254354333767">10 Dec 1961</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Margene</td><td>Woldt</td><td>Parachute Officer</td><td data-value="536468503892">1 Jan 1987</td><td data-value="3">Suspended</td></tr>
+                <tr><td class="expand">Karole</td><td>Kyles</td><td>Post-Anesthesia Care Unit Nurse</td><td data-value="367673493558">26 Aug 1981</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Venice</td><td>Quaranta</td><td>Scene and Lighting Design Lecturer</td><td data-value="-166235727775">25 Sep 1964</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Cyndy</td><td>Wohlwend</td><td>Animal Husbandry Manager</td><td data-value="412581952378">28 Jan 1983</td><td data-value="2">Disabled</td></tr>
+                <tr><td class="expand">Shenia</td><td>Hayton</td><td>Route Sales Person</td><td data-value="140918558876">20 Jun 1974</td><td data-value="2">Disabled</td></tr>
+                <tr><td class="expand">Dolly</td><td>Yaple</td><td>Roller Skater</td><td data-value="649845920518">5 Aug 1990</td><td data-value="2">Disabled</td></tr>
+                <tr><td class="expand">Delana</td><td>Matsumura</td><td>Psychology Professor</td><td data-value="635914589227">25 Feb 1990</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Londa</td><td>Dragoo</td><td>Route Sales Person</td><td data-value="534304871752">7 Dec 1986</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Rona</td><td>Carasco</td><td>Periodontist</td><td data-value="577248891016">17 Apr 1988</td><td data-value="1">Active</td></tr>
+                <tr><td class="expand">Shona</td><td>Matsumura</td><td>Language Translator</td><td data-value="-126255961582">31 Dec 1965</td><td data-value="3">Suspended</td></tr>
+                <tr><td class="expand">Phoebe</td><td>Moudy</td><td>Propeller-Driven Airplane Mechanic</td><td data-value="706722221418">24 May 1992</td><td data-value="3">Suspended</td></tr>
+              </tbody>
+            </table>
 
-<table id="mytable" class="table table-bordered table-hover">
-      <thead>
-        <tr>
-          <th data-class="expand">
-            First Name
-          </th>
-          <th>
-            Last Name
-          </th>
-          <th data-hide="phone,tablet">
-            Job Title
-          </th>
-          <th data-hide="phone,tablet">
-            DOB
-          </th>
-          <th data-hide="phone">
-            Status
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-<tr><td class="expand">Dalene</td><td>Kyger</td><td>Pipe Organ Technician</td><td data-value="301628552763">24 Jul 1979</td><td data-value="3">Suspended</td></tr>
-<tr><td class="expand">Gwyn</td><td>Letts</td><td>Emergency Room Orderly</td><td data-value="39223730865">31 Mar 1971</td><td data-value="2">Disabled</td></tr>
-<tr><td class="expand">Jacqulyn</td><td>Lewis</td><td>Language Translator</td><td data-value="267868302457">28 Jun 1978</td><td data-value="3">Suspended</td></tr>
-<tr><td class="expand">Bar</td><td>Lan</td><td>Business Services Sales Representative</td><td data-value="151133415026">16 Oct 1974</td><td data-value="2">Disabled</td></tr>
-<tr><td class="expand">Cyndy</td><td>Leak</td><td>Periodontist</td><td data-value="409113990796">19 Dec 1982</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Jack</td><td>Dragoo</td><td>Ordnance Engineer</td><td data-value="270562207782">29 Jul 1978</td><td data-value="3">Suspended</td></tr>
-<tr><td class="expand">Lorriane</td><td>Ortego</td><td>Body Shop Supervisor</td><td data-value="620144344284">26 Aug 1989</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Jua</td><td>Leak</td><td>Photocopying Equipment Repairer</td><td data-value="400526034309">10 Sep 1982</td><td data-value="3">Suspended</td></tr>
-<tr><td class="expand">Venice</td><td>Boudreaux</td><td>Accounts Collector</td><td data-value="-254354333767">10 Dec 1961</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Margene</td><td>Woldt</td><td>Parachute Officer</td><td data-value="536468503892">1 Jan 1987</td><td data-value="3">Suspended</td></tr>
-<tr><td class="expand">Karole</td><td>Kyles</td><td>Post-Anesthesia Care Unit Nurse</td><td data-value="367673493558">26 Aug 1981</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Venice</td><td>Quaranta</td><td>Scene and Lighting Design Lecturer</td><td data-value="-166235727775">25 Sep 1964</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Cyndy</td><td>Wohlwend</td><td>Animal Husbandry Manager</td><td data-value="412581952378">28 Jan 1983</td><td data-value="2">Disabled</td></tr>
-<tr><td class="expand">Shenia</td><td>Hayton</td><td>Route Sales Person</td><td data-value="140918558876">20 Jun 1974</td><td data-value="2">Disabled</td></tr>
-<tr><td class="expand">Dolly</td><td>Yaple</td><td>Roller Skater</td><td data-value="649845920518">5 Aug 1990</td><td data-value="2">Disabled</td></tr>
-<tr><td class="expand">Delana</td><td>Matsumura</td><td>Psychology Professor</td><td data-value="635914589227">25 Feb 1990</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Londa</td><td>Dragoo</td><td>Route Sales Person</td><td data-value="534304871752">7 Dec 1986</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Rona</td><td>Carasco</td><td>Periodontist</td><td data-value="577248891016">17 Apr 1988</td><td data-value="1">Active</td></tr>
-<tr><td class="expand">Shona</td><td>Matsumura</td><td>Language Translator</td><td data-value="-126255961582">31 Dec 1965</td><td data-value="3">Suspended</td></tr>
-<tr><td class="expand">Phoebe</td><td>Moudy</td><td>Propeller-Driven Airplane Mechanic</td><td data-value="706722221418">24 May 1992</td><td data-value="3">Suspended</td></tr>
-
-      </tbody>
-    </table>
+            <h3 id="heading2">Sample table 2</h3>
+            <table id="mytable2" class="table table-bordered table-hover table-condensed"> 
+              <thead> 
+                <tr> 
+                    <th>Last Name</th> 
+                    <th>First Name</th> 
+                    <th>Email</th> 
+                    <th>Due</th> 
+                    <th>Web Site</th> 
+                </tr> 
+              </thead> 
+              <tbody> 
+                <tr> 
+                    <td>Smith</td> 
+                    <td>John</td> 
+                    <td>jsmith@gmail.com</td> 
+                    <td>$50.00</td> 
+                    <td>http://www.jsmith.com</td> 
+                </tr> 
+                <tr> 
+                    <td>Bach</td> 
+                    <td>Frank</td> 
+                    <td>fbach@yahoo.com</td> 
+                    <td>$50.00</td> 
+                    <td>http://www.frank.com</td> 
+                </tr> 
+                <tr> 
+                    <td>Doe</td> 
+                    <td>Jason</td> 
+                    <td>jdoe@hotmail.com</td> 
+                    <td>$100.00</td> 
+                    <td>http://www.jdoe.com</td> 
+                </tr> 
+                <tr> 
+                    <td>Conway</td> 
+                    <td>Tim</td> 
+                    <td>tconway@earthlink.net</td> 
+                    <td>$50.00</td> 
+                    <td>http://www.timconway.com</td> 
+                </tr> 
+              </tbody> 
+            </table> 
 
         </div>  
       </div>
