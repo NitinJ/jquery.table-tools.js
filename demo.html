@@ -14,7 +14,7 @@
       $(document).ready(function(){
         $("#mytable1").tableTools({itemsPerPage:8});
 
-        $("#mytable2").tableTools({itemsPerPage:10,responsive:0});
+        $("#mytable2").tableTools({itemsPerPage:100,responsive:0});
 
         $("#mytable3").tableTools({
           itemsPerPage:10,
@@ -25,7 +25,8 @@
         });
 
         $("#mytable4").tableTools({
-          pagination:0
+          pagination:0,
+          addRowButtonText: "Add row"
         });
 
         $("#mytable5").tableTools({
@@ -34,7 +35,7 @@
           searchBox: 0,
           deleteButton: 0,
           selectDeselectButtons:0,
-          pagination:0
+          pagination:0,
         });
 
       });

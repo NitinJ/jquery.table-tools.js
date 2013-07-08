@@ -13,6 +13,7 @@
         selectDeselectButtons:1,
         rowSelect:1,
         pagination: 1,
+        useSmallerIcons: 0,
         deleteConfirmationHeading: "Delete?",
         deleteConfirmationBodyHtml:"Do you want to delete the selected rows?",
         addRowButtonText: "Add row",
@@ -29,6 +30,7 @@
       if($(this).get(0).tagName != "TABLE") return;
 
       //Variables
+      var responsiveWidth = [480];
       var elements = new Array();
       var headings = new Array();
       var parentElementOfTable = $(this).parent();
@@ -46,6 +48,8 @@
        
       //Detatch table from DOM
       var thisTable = $(this).detach();
+
+      //Width management
 
       // Get all headings
       var headings = new Array();
@@ -137,7 +141,7 @@
           else if(elements[i].active) 
             count++;
         }
-        if(options.pagination){
+        if(options.pagination && elements.length>options.itemsPerPage){
           //Show pagination
           tableToolsContainer.find(".tabletoolspagination").remove();
           tableToolsContainer.append(generatePagination());
@@ -192,7 +196,7 @@
         }
         changeTotalSelectedRows(0, deleted*-1);
         options.deleteFunction(returnvalues);
-        if(options.pagination){
+        if(options.pagination && elements.length>options.itemsPerPage){
           tableToolsContainer.find(".tabletoolspagination").remove();
           tableToolsContainer.append(generatePagination());
         }
@@ -233,26 +237,29 @@
             }
           });
           elements.push({obj:rowcopy, active:1, selected:0});
-          tableToolsContainer.find(".tabletoolspagination").remove();
-          tableToolsContainer.append(generatePagination());
+          if(options.pagination && elements.length>options.itemsPerPage){
+            tableToolsContainer.find(".tabletoolspagination").remove();
+            tableToolsContainer.append(generatePagination());
+          }
+
           var forms = tableToolsContainer.find("form");
           console.log(forms);
           for(i in forms){
             try{forms[i].reset();}
             catch(err){}
           }
-          addRowCallback(inputarr);
+          options.addRowCallback(inputarr);
           showPage(currentPage);
         }
       });
 
       // Add row
-      var addRowButton = $("<button id='tabletools_addrowbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-plus'></i> <span class='visible-desktop visible-tablet'>Add row</span></button>").click(function(){
+      var addRowButton = $("<button id='tabletools_addrowbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-plus'></i> <span class='tabletools_smallericons"+options.useSmallerIcons+" visible-desktop visible-tablet'>"+options.addRowButtonText+"</span></button>").click(function(){
         tableToolsContainer.find(".tabletools_addrowmodal").modal('show');
       });
 
       // Select all
-      var selectAllButton = $("<button id='tabletools_selectallbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-check'></i> <span class='visible-desktop visible-tablet'>Select all</span></button>").click(function(){
+      var selectAllButton = $("<button id='tabletools_selectallbutton' class='btn btn tabletoolstoolbar_button'><i class='icon-check'></i> <span class='tabletools_smallericons"+options.useSmallerIcons+" visible-desktop visible-tablet'>Select all</span></button>").click(function(){
         var selected=elements.length;
         for(i in elements){
           if(!elements[i].selected && elements[i].active){
@@ -266,7 +273,7 @@
       });
 
       // Deselect all
-      var deSelectAllButton = $("<button class='btn btn tabletoolstoolbar_button'><i class='icon-check-empty'></i> <span class='visible-desktop visible-tablet'>Deselect all</span></button>").click(function(){
+      var deSelectAllButton = $("<button class='btn btn tabletoolstoolbar_button'><i class='icon-check-empty'></i> <span class='tabletools_smallericons"+options.useSmallerIcons+" visible-desktop visible-tablet'>Deselect all</span></button>").click(function(){
         var deselected=0;
         for(i in elements){
           if(elements[i].selected && elements[i].active){
@@ -281,12 +288,16 @@
       });
 
       // DeleteSelectedRows button
-      var deleteSelectedButton = $("<button class='deleteselectedbutton hide btn btn tabletoolstoolbar_button'><i class='icon-trash'></i> <span class='visible-desktop visible-tablet'>Delete selected</span></button>").click(function(){
+      var deleteSelectedButton = $("<button class='deleteselectedbutton hide btn btn tabletoolstoolbar_button'><i class='icon-trash'></i> <span class='tabletools_smallericons"+options.useSmallerIcons+" visible-desktop visible-tablet'>Delete selected</span></button>").click(function(){
         tableToolsContainer.find(".deleteconfirmationmodal").modal('show');
       });
 
       // Search box
-      var searchBox = $("<div class='input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='pull-right' type='text' placeholder='Search...'></div>").keyup(function(){
+      if(!options.useSmallerIcons)
+        var searchBox = $("<div class='input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='pull-right' type='text' placeholder='Search...'></div>");
+      else
+        var searchBox = $("<div class='input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='input input-small pull-right' type='text' placeholder='Search...'></div>");
+      searchBox.keyup(function(){
         var str = $(this).find("input").val();
         for(i in elements){
             if(elements[i].obj.text().indexOf(str) < 0){
@@ -344,7 +355,7 @@
       
       tableToolsContainer.append(tableToolsToolbar).append(blankTable);
 
-      if(options.pagination) tableToolsContainer.append(generatePagination);
+      if(options.pagination && elements.length>options.itemsPerPage) tableToolsContainer.append(generatePagination);
 
       if(previousElementOfTable.length) previousElementOfTable.after(tableToolsContainer);
       else parentElementOfTable.append(tableToolsContainer);

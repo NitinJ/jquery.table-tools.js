@@ -37,7 +37,9 @@
 .tabletoolspagination_acurrentpage{
   background:#F5F5F5 !important
 }
-
+.tabletools_smallericons1{
+  display:none !important;
+}
 
 @media 
 only screen and (max-width: 760px),
