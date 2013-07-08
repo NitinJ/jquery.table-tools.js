@@ -7,12 +7,23 @@
       options = $.extend({}, {
         itemsPerPage:10,
         responsive:1,
+        addRowButton: 1,
+        searchBox: 1,
+        deleteButton: 1,
+        selectDeselectButtons:1,
+        rowSelect:1,
+        pagination: 1,
         deleteConfirmationHeading: "Delete?",
         deleteConfirmationBodyHtml:"Do you want to delete the selected rows?",
+        addRowButtonText: "Add row",
         deleteFunction: function(x){},
         addRowValidationFunction: function(x){return true;},
         addRowCallback: function(x){return true},
       },options);
+
+      // Option validation
+      options.itemsPerPage = options.itemsPerPage>=0?10:options.itemsPerPage;
+      if(!options.pagination){options.itemsPerPage=Number.MAX_VALUE;}
 
       //Check if its a table and return if its not
       if($(this).get(0).tagName != "TABLE") return;
@@ -86,7 +97,11 @@
       
       //Functions to generate pagination links
       var generatePagination = function(){
-        var e = elements.length;
+        var e = 0;
+        for(i in elements){
+          if(elements[i].active)
+            e++;
+        }
         var totalPages = Math.ceil(e/options.itemsPerPage);
         var itemsperpage=options.itemsPerPage;
         var paginationhtml = '<div class="tabletoolspagination pagination"><p class="pull-right tabletools_numberofactiverows_p"></p><p style="margin-left:2px;margin-right:2px" class="pull-right numberofselectedrows"></p> <ul><li><a href="#">Prev</a></li>';
@@ -122,31 +137,39 @@
           else if(elements[i].active) 
             count++;
         }
-        //Show number of active rows
-        tableToolsContainer.find(".tabletools_numberofactiverows_p").text("Showing " + count2 + " rows of " + elements.length);
-        tableToolsContainer.find(".tabletoolspagination>ul>li>a").removeClass("tabletoolspagination_acurrentpage");
-        tableToolsContainer.find(".tabletoolspagination>ul>li:nth-child("+(currentPage+1)+")>a").addClass("tabletoolspagination_acurrentpage");
+        if(options.pagination){
+          //Show pagination
+          tableToolsContainer.find(".tabletoolspagination").remove();
+          tableToolsContainer.append(generatePagination());
+          //Show number of active rows
+          tableToolsContainer.find(".tabletools_numberofactiverows_p").text("Showing " + count2 + " rows of " + elements.length);
+          tableToolsContainer.find(".tabletoolspagination>ul>li>a").removeClass("tabletoolspagination_acurrentpage");
+          tableToolsContainer.find(".tabletoolspagination>ul>li:nth-child("+(currentPage+1)+")>a").addClass("tabletoolspagination_acurrentpage");
+        }
       }
 
-      // Click to select and deselect
-      for(i in elements){
-        elements[i].obj.click(function(e){
-          var id = $(this).data('id');
-          if(elements[id].selected){
-            elements[id].selected=0;
-            elements[id].obj.removeClass("tabletoolsselectedtr");
-            elements[id].obj.find("td:first-child()>.tabletoolsselectedrowicon").remove();
-            changeTotalSelectedRows(0,-1);
-          }
-          else{
-            elements[id].selected=1;
-            elements[id].obj.addClass("tabletoolsselectedtr");
-            elements[id].obj.find("td:first-child()").prepend($("<i class='tabletoolsselectedrowicon icon-ok'></i>"));
-            changeTotalSelectedRows(0,1);
-          }
-        });
+      if(!options.rowSelect || (!options.addRowButton && !options.deleteButton && !options.selectDeselectButtons)){}
+      else{
+        // Click to select and deselect events
+        for(i in elements){
+          elements[i].obj.click(function(e){
+            var id = $(this).data('id');
+            if(elements[id].selected){
+              elements[id].selected=0;
+              elements[id].obj.removeClass("tabletoolsselectedtr");
+              elements[id].obj.find("td:first-child()>.tabletoolsselectedrowicon").remove();
+              changeTotalSelectedRows(0,-1);
+            }
+            else{
+              elements[id].selected=1;
+              elements[id].obj.addClass("tabletoolsselectedtr");
+              elements[id].obj.find("td:first-child()").prepend($("<i class='tabletoolsselectedrowicon icon-ok'></i>"));
+              changeTotalSelectedRows(0,1);
+            }
+          });
+        }  
       }
-
+      
       // Adding add row modal
       for(i in headings){
         var html = $('<form class="form-horizontal"><div class="control-group"><label for="tabletools_input'+i+'" class="control-label">'+headings[i]+'</label><div class="controls"><input id="tabletools_input'+i+'" type="text"></div></div></form>');
@@ -169,8 +192,10 @@
         }
         changeTotalSelectedRows(0, deleted*-1);
         options.deleteFunction(returnvalues);
-        tableToolsContainer.find(".tabletoolspagination").remove();
-        tableToolsContainer.append(generatePagination());
+        if(options.pagination){
+          tableToolsContainer.find(".tabletoolspagination").remove();
+          tableToolsContainer.append(generatePagination());
+        }
         showPage(currentPage);
       });
 
@@ -312,12 +337,17 @@
         }
       }
 
-      tableToolsToolbar.append(addRowButton).append(selectAllButton).append(deSelectAllButton).append(deleteSelectedButton).append(searchBox);
-      tableToolsContainer.append(tableToolsToolbar).append(blankTable).append(generatePagination);
-      if(previousElementOfTable.length)
-        previousElementOfTable.after(tableToolsContainer);
-      else
-        parentElementOfTable.append(tableToolsContainer);
+      if(options.addRowButton) tableToolsToolbar.append(addRowButton);
+      if(options.selectDeselectButtons) tableToolsToolbar.append(selectAllButton).append(deSelectAllButton);
+      if(options.deleteButton) tableToolsToolbar.append(deleteSelectedButton);
+      if(options.searchBox) tableToolsToolbar.append(searchBox);
+      
+      tableToolsContainer.append(tableToolsToolbar).append(blankTable);
+
+      if(options.pagination) tableToolsContainer.append(generatePagination);
+
+      if(previousElementOfTable.length) previousElementOfTable.after(tableToolsContainer);
+      else parentElementOfTable.append(tableToolsContainer);
 
       showPage(1);
     });
