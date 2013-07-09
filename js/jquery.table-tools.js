@@ -23,7 +23,7 @@
       },options);
 
       // Option validation
-      options.itemsPerPage = options.itemsPerPage>=0?10:options.itemsPerPage;
+      options.itemsPerPage = options.itemsPerPage<0?10:options.itemsPerPage;
       if(!options.pagination){options.itemsPerPage=Number.MAX_VALUE;}
 
       //Check if its a table and return if its not
@@ -186,9 +186,16 @@
         var deleted = 0;
         for(var i=0;i<elements.length;i++){
           if(elements[i].selected){
+            var columns = elements[i].obj.find("td");
+            var columnvalues = new Array();
+            console.log(columns);
+            for(var j=0;j<columns.length;j++){
+              columnvalues.push( $(columns[j]).contents().filter(function(){return this.nodeType === 3;}).text() )
+            }
             elements.splice(i,1);
             deleted++;
             i--;
+            returnvalues.push(columnvalues);            
           }
           else{
             elements[i].obj.data('id', i);  
