@@ -33,6 +33,7 @@
 }
 .tabletoolsresponsive_searchbox{
   white-space: normal !important;
+  display:inline-block;
 }
 .tabletoolspagination_acurrentpage{
   background:#F5F5F5 !important
@@ -70,10 +71,17 @@ only screen and (max-width: 760px),
       white-space: nowrap;
     }
 
-     .tabletoolsresponsive_searchbox{
+    .tabletoolsresponsive_searchbox{
       display:block !important;
-      margin-top:2px;
+      margin:2px;
       white-space: normal !important;
+      float: none !important;
+    }
+    .tabletoolsresponsive_searchbox >input{
+      float: left !important;
+    }
+    .tabletoolsresponsive_searchbox >i{
+      float: left !important;
     }
 
     .tabletoolsresponsive_table .tabletoolsselectedrowicon{

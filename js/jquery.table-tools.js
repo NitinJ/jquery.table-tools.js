@@ -20,6 +20,7 @@
         deleteFunction: function(x){},
         addRowValidationFunction: function(x){return true;},
         addRowCallback: function(x){return true},
+        pageChangeCallback: function(x){return true;}
       },options);
 
       // Option validation
@@ -115,9 +116,31 @@
         // CLick handler on page
         paginationObj.find("a").click(function(){
           var n = $(this).text();
-          if(n=="Prev") n = (currentPage-1)<1?1:currentPage-1;
-          if(n == "Next") n = (currentPage+1)>totalPages?totalPages:currentPage+1;
-          else n = parseInt(n);
+          if(n=="Prev") {
+            if(currentPage-1 < 1){
+              n=1;
+            }
+            else{
+              n = currentPage - 1;
+              options.pageChangeCallback();
+            }
+          }
+          if(n == "Next") {
+            if(currentPage+1 > totalPages){
+              n = totalPages;
+            }
+            else{
+              n = currentPage + 1;
+              options.pageChangeCallback();
+            }
+          }
+          else if(n == currentPage){
+            n = parseInt(n);
+          }
+          else {
+            n = parseInt(n);
+            options.pageChangeCallback();
+          }
           currentPage = n;
           showPage(currentPage);
         });
@@ -152,10 +175,11 @@
         }
       }
 
-      if(!options.rowSelect || (!options.addRowButton && !options.deleteButton && !options.selectDeselectButtons)){}
+      if(!options.rowSelect){}
       else{
         // Click to select and deselect events
         for(i in elements){
+          elements[i].obj.css({'cursor':'pointer'});
           elements[i].obj.click(function(e){
             var id = $(this).data('id');
             if(elements[id].selected){
@@ -195,7 +219,7 @@
             elements.splice(i,1);
             deleted++;
             i--;
-            returnvalues.push(columnvalues);            
+            returnvalues.push(columnvalues);
           }
           else{
             elements[i].obj.data('id', i);  
@@ -301,9 +325,9 @@
 
       // Search box
       if(!options.useSmallerIcons)
-        var searchBox = $("<div class='input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='pull-right' type='text' placeholder='Search...'></div>");
+        var searchBox = $("<div class='tabletools_searchbox input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='pull-right' type='text' placeholder='Search...'></div>");
       else
-        var searchBox = $("<div class='input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='input input-small pull-right' type='text' placeholder='Search...'></div>");
+        var searchBox = $("<div class='tabletools_searchbox input-prepend pull-right' style='margin-right:1px'><span class='add-on'><i class='icon-search'></i></span><input class='input input-small pull-right' type='text' placeholder='Search...'></div>");
       searchBox.keyup(function(){
         var str = $(this).find("input").val();
         for(i in elements){
