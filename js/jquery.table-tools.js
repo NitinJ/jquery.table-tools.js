@@ -1,3 +1,6 @@
+/**
+ * @author njaglan
+ */
 (function($) {
   $.fn.tableTools = function(options) {
 
